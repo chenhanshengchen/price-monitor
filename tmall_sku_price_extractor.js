@@ -109,6 +109,9 @@ function (element, input) {
             var package = parts[0] ? parts[0].trim() : "";
             var refraction = parts[1] ? parts[1].trim() : "";
 
+            // 删除镜片套餐开头的"颜色分类:"字样
+            package = package.replace(/^颜色分类[:：]\s*/g, '');
+
             resultList.push({
                 "镜片套餐": package,
                 "折射率": refraction,

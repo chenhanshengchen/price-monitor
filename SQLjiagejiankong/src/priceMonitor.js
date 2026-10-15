@@ -2,6 +2,7 @@ const fs = require('fs');
 const config = require('../config');
 const logger = require('./logger');
 const PriceDatabase = require('./database');
+const notifier = require('./notifier');
 
 class PriceMonitor {
   constructor() {
@@ -78,7 +79,7 @@ class PriceMonitor {
     return changes;
   }
 
-  run() {
+  async run() {
     try {
       logger.info('=== 开始执行价格监控 ===');
 
@@ -87,6 +88,7 @@ class PriceMonitor {
 
       if (changes.length > 0) {
         logger.info(`发现 ${changes.length} 个价格变动`);
+        await notifier.notifyPriceChange(changes);
       } else {
         logger.info('无价格变动');
       }
@@ -94,7 +96,8 @@ class PriceMonitor {
       logger.info('=== 价格监控执行完成 ===');
       return changes;
     } catch (error) {
-      logger.error('执行异常', { error: error.message });
+      logger.error('执行异常', { error: error.message, stack: error.stack });
+      await notifier.notifyError(error.name, error.message);
       throw error;
     } finally {
       this.db.close();
