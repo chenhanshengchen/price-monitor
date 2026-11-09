@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- 修复 Bug #8: 添加 CSP 安全头 -->
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net;
+    style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://fonts.googleapis.com;
+    font-src 'self' https://fonts.gstatic.com;
+    img-src 'self' data: https:;
+    connect-src 'self';
+  ">
+
+  <title>价格监控系统</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Tailwind 配置 -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            // 苹果风格配色
+            apple: {
+              blue: '#007AFF',
+              gray: {
+                50: '#F5F5F7',
+                100: '#E8E8ED',
+                200: '#D2D2D7',
+                300: '#AEAEB2',
+                400: '#8E8E93',
+                500: '#636366',
+                600: '#48484A',
+                700: '#3A3A3C',
+                800: '#2C2C2E',
+                900: '#1D1D1F',
+              }
+            }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', 'Inter', 'SF Pro Display', 'Segoe UI', 'system-ui', 'sans-serif'],
+          },
+          borderRadius: {
+            'apple': '12px',
+            'apple-lg': '18px',
+          },
+          boxShadow: {
+            'apple-sm': '0 2px 8px rgba(0, 0, 0, 0.08)',
+            'apple': '0 4px 16px rgba(0, 0, 0, 0.12)',
+            'apple-lg': '0 8px 32px rgba(0, 0, 0, 0.16)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- 自定义样式 -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-white dark:bg-apple-gray-900 text-apple-gray-900 dark:text-white transition-colors duration-300">
+
+  <!-- 导航栏 -->
+  <nav class="fixed top-4 left-4 right-4 z-50">
+    <div class="max-w-7xl mx-auto">
+      <div class="backdrop-blur-xl bg-white/80 dark:bg-apple-gray-800/80 rounded-apple-lg shadow-apple px-6 py-4">
+        <div class="flex items-center justify-between">
+          <!-- Logo 和标题 -->
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-gradient-to-br from-apple-blue to-blue-600 rounded-xl flex items-center justify-center">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+            <h1 class="text-xl font-semibold">价格监控系统</h1>
+          </div>
+
+          <!-- 深色模式切换 -->
+          <button
+            id="theme-toggle"
+            class="p-2.5 rounded-xl bg-apple-gray-100 dark:bg-apple-gray-700 hover:bg-apple-gray-200 dark:hover:bg-apple-gray-600 transition-all duration-200 cursor-pointer"
+            aria-label="切换深色模式"
+          >
+            <!-- 太阳图标 (浅色模式) -->
+            <svg class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            <!-- 月亮图标 (深色模式) -->
+            <svg class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 主内容区 -->
+  <main class="pt-28 pb-12 px-4">
+    <div class="max-w-7xl mx-auto">
+
+      <!-- 统计卡片区域 -->
+      <section id="stats-section" class="mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+          <!-- 统计卡片 1: 商品数 -->
+          <div class="bg-white dark:bg-apple-gray-800 rounded-apple-lg shadow-apple-sm p-6 hover:shadow-apple transition-shadow duration-200">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm text-apple-gray-500 dark:text-apple-gray-400 mb-1">商品数量</p>
+                <p class="text-3xl font-semibold" id="product-count">-</p>
+              </div>
+              <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-apple flex items-center justify-center">
+                <svg class="w-6 h-6 text-apple-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- 统计卡片 2: 超阈值变动商品 -->
+          <div class="bg-white dark:bg-apple-gray-800 rounded-apple-lg shadow-apple-sm p-6 hover:shadow-apple transition-shadow duration-200">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm text-apple-gray-500 dark:text-apple-gray-400 mb-1">超阈值变动</p>
+                <p class="text-3xl font-semibold" id="changes-count">-</p>
+              </div>
+              <div class="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-apple flex items-center justify-center">
+                <svg class="w-6 h-6 text-orange-500 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- 统计卡片 3: 最新更新 -->
+          <div class="bg-white dark:bg-apple-gray-800 rounded-apple-lg shadow-apple-sm p-6 hover:shadow-apple transition-shadow duration-200">
+            <div class="flex items-center justify-between">
+              <div class="flex-1 min-w-0">
+                <p class="text-sm text-apple-gray-500 dark:text-apple-gray-400 mb-1">最新更新</p>
+                <p class="text-lg font-medium truncate" id="last-update">-</p>
+              </div>
+              <div class="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-apple flex items-center justify-center flex-shrink-0 ml-4">
+                <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 商品列表 -->
+      <section id="products-section">
+        <div class="bg-white dark:bg-apple-gray-800 rounded-apple-lg shadow-apple-sm p-6">
+          <h2 class="text-xl font-semibold mb-4">监控商品</h2>
+          <div id="products-content" class="text-apple-gray-400 text-center py-4">
+            加载中...
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="py-6 px-4 border-t border-apple-gray-200 dark:border-apple-gray-700">
+    <div class="max-w-7xl mx-auto text-center text-sm text-apple-gray-500 dark:text-apple-gray-400">
+      <p>价格监控系统 v2.0 · 数据保留 3 天</p>
+    </div>
+  </footer>
+
+  <!-- JavaScript -->
+  <script src="app.js"></script>
+</body>
+</html>

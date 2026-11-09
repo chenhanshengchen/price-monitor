@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com;
+    style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://fonts.googleapis.com;
+    font-src 'self' https://fonts.gstatic.com;
+    img-src 'self' data: https:;
+    connect-src 'self';
+  ">
+  <title>商品详情 - 价格监控系统</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            apple: {
+              blue: '#007AFF',
+              gray: {
+                50: '#F5F5F7', 100: '#E8E8ED', 200: '#D2D2D7',
+                300: '#AEAEB2', 400: '#8E8E93', 500: '#636366',
+                600: '#48484A', 700: '#3A3A3C', 800: '#2C2C2E', 900: '#1D1D1F',
+              }
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-white dark:bg-apple-gray-900 text-apple-gray-900 dark:text-white transition-colors duration-300">
+
+  <nav class="fixed top-4 left-4 right-4 z-50">
+    <div class="max-w-7xl mx-auto">
+      <div class="backdrop-blur-xl bg-white/80 dark:bg-apple-gray-800/80 rounded-apple-lg shadow-apple px-6 py-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <button id="back-btn" class="p-2 hover:bg-apple-gray-100 dark:hover:bg-apple-gray-700 rounded-xl transition-colors">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <h1 class="text-xl font-semibold" id="page-title">商品详情</h1>
+          </div>
+          <button id="theme-toggle" class="p-2.5 rounded-xl bg-apple-gray-100 dark:bg-apple-gray-700 hover:bg-apple-gray-200 dark:hover:bg-apple-gray-600 transition-all duration-200">
+            <svg class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            <svg class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="pt-28 pb-12 px-4">
+    <div class="max-w-7xl mx-auto">
+
+      <!-- 商品信息卡片 -->
+      <section id="product-info" class="mb-8">
+        <div class="bg-white dark:bg-apple-gray-800 rounded-apple-lg shadow-apple-sm p-6">
+          <div id="product-info-content" class="text-apple-gray-400 text-center py-4">
+            加载中...
+          </div>
+        </div>
+      </section>
+
+      <!-- 批次选择器 -->
+      <section id="batch-selector" class="mb-8">
+        <div class="bg-white dark:bg-apple-gray-800 rounded-apple-lg shadow-apple-sm p-6">
+          <h2 class="text-xl font-semibold mb-4">批次对比</h2>
+          <div id="batch-selector-content" class="text-apple-gray-400 text-center py-4">
+            加载中...
+          </div>
+        </div>
+      </section>
+
+      <!-- SKU 价格表格 -->
+      <section id="sku-table">
+        <div class="bg-white dark:bg-apple-gray-800 rounded-apple-lg shadow-apple-sm p-6">
+          <h2 class="text-xl font-semibold mb-4">SKU 价格对比</h2>
+
+          <!-- 筛选和搜索栏 -->
+          <div id="filter-bar" class="hidden mb-4 space-y-3">
+            <div class="flex flex-wrap items-center gap-2">
+              <button data-filter="exceeded" class="filter-btn px-4 py-2 rounded-xl text-sm font-medium transition-all">
+                超阈值 (<span class="filter-count" data-count="exceeded">0</span>)
+              </button>
+              <button data-filter="increased" class="filter-btn px-4 py-2 rounded-xl text-sm font-medium transition-all">
+                涨价 (<span class="filter-count" data-count="increased">0</span>)
+              </button>
+              <button data-filter="decreased" class="filter-btn px-4 py-2 rounded-xl text-sm font-medium transition-all">
+                降价 (<span class="filter-count" data-count="decreased">0</span>)
+              </button>
+              <button data-filter="all" class="filter-btn px-4 py-2 rounded-xl text-sm font-medium transition-all">
+                全部 SKU (<span class="filter-count" data-count="all">0</span>)
+              </button>
+              <button id="push-exceeded-btn" class="hidden ml-auto px-4 py-2 rounded-xl text-sm font-medium bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                推送超阈值 SKU 到钉钉
+              </button>
+            </div>
+            <div id="push-result" class="text-sm hidden"></div>
+            <div class="flex items-center gap-2">
+              <input
+                type="text"
+                id="sku-search"
+                placeholder="搜索 A 或 B"
+                class="flex-1 px-4 py-2 rounded-xl bg-apple-gray-100 dark:bg-apple-gray-700 border-0 focus:ring-2 focus:ring-apple-blue text-sm"
+              >
+              <button id="clear-search" class="hidden px-4 py-2 rounded-xl bg-apple-gray-200 dark:bg-apple-gray-600 hover:bg-apple-gray-300 dark:hover:bg-apple-gray-500 text-sm transition-colors">
+                清除
+              </button>
+            </div>
+            <div id="search-result-info" class="text-sm text-apple-gray-500 hidden"></div>
+          </div>
+
+          <div id="sku-table-content" class="text-apple-gray-400 text-center py-4">
+            加载中...
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <script src="detail.js"></script>
+</body>
+</html>
